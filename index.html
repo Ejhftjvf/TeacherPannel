@@ -62,9 +62,10 @@
       transition: 0.3s;
       z-index: 1050;
     }
-    .sidebar h2 {
+    .sidebar h3 {
       color: #fff;
       text-align: center;
+      margin-top: 50px;
       margin-bottom: 20px;
     }
     .sidebar ul {
@@ -96,7 +97,7 @@
     .section.active {
       display: block;
     }
-    form input, form textarea, form button, form select {
+    form input, form textarea, form button {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
@@ -190,6 +191,36 @@
     .edit-profile-btn:hover {
       background-color: #34495e;
     }
+    .dropdown-container {
+      position: relative;
+      margin: 8px 0;
+    }
+    .dropdown-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    .dropdown-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      display: none;
+      z-index: 1300;
+    }
+    .dropdown-list div {
+      padding: 10px;
+      cursor: pointer;
+    }
+    .dropdown-list div:hover {
+      background-color: #f0f0f0;
+    }
     @media (max-width: 768px) {
       .hamburger {
         display: block;
@@ -203,6 +234,7 @@
       .content {
         margin-left: 0;
       }
+      
     }
   </style>
 </head>
@@ -218,7 +250,7 @@
   </div>
   
   <nav class="sidebar" id="sidebar">
-    <h2>Teacher Panel</h2>
+    <h3>Teacher Panel</h3>
     <ul>
       <li onclick="showSection('students')">Students</li>
       <li onclick="showSection('assignments')">Assignments</li>
@@ -254,7 +286,11 @@
     <section id="sessional" class="section">
       <h2>Sessional Marks</h2>
       <form id="sessionalForm">
-        <select id="studentSelect" required></select>
+        <div class="dropdown-container">
+          <input type="text" id="studentSearch" placeholder="Search Student" required>
+          <div id="studentDropdown" class="dropdown-list"></div>
+          <input type="hidden" id="selectedStudentId" name="studentId">
+        </div>
         <input type="number" id="sessionalMarks" placeholder="Marks (0-100)" min="0" max="100" required>
         <button type="submit">Submit Marks</button>
       </form>
@@ -271,7 +307,6 @@
     </section>
   </main>
   
-  <!-- Modals -->
   <div id="studentEditModal" class="modal">
     <div class="modal-content">
       <h3>Edit Student</h3>
@@ -365,6 +400,9 @@
           modal.style.display = 'none';
         }
       }
+      if (!event.target.matches('#studentSearch') && !event.target.matches('.dropdown-list div')) {
+        document.getElementById('studentDropdown').style.display = 'none';
+      }
     }
     
     function loadProfile() {
@@ -386,8 +424,6 @@
       showSection('students');
       const students = JSON.parse(localStorage.getItem('students')) || [];
       let html = '';
-      const studentSelect = document.getElementById('studentSelect');
-      if(studentSelect) studentSelect.innerHTML = '<option value="">Select Student</option>';
       students.forEach(student => {
         html += `
           <div class="list-item">
@@ -398,7 +434,6 @@
             <button class="action-btn delete-btn" onclick="deleteStudent('${student.id}')">Delete</button>
           </div>
         `;
-        if(studentSelect) studentSelect.innerHTML += `<option value="${student.id}">${student.name}</option>`;
       });
       document.getElementById('studentsList').innerHTML = html;
     }
@@ -442,6 +477,52 @@
         }
       });
       document.getElementById('sessionalList').innerHTML = html;
+      setupStudentDropdown(students);
+    }
+    
+    function setupStudentDropdown(students) {
+      const searchInput = document.getElementById('studentSearch');
+      const dropdown = document.getElementById('studentDropdown');
+      const selectedIdInput = document.getElementById('selectedStudentId');
+      
+      searchInput.addEventListener('input', () => {
+        const filter = searchInput.value.toLowerCase();
+        const filteredStudents = students.filter(student => 
+          student.name.toLowerCase().includes(filter) || 
+          student.email.toLowerCase().includes(filter)
+        );
+        dropdown.innerHTML = '';
+        filteredStudents.forEach(student => {
+          const div = document.createElement('div');
+          div.textContent = `${student.name} (${student.email})`;
+          div.dataset.id = student.id;
+          div.addEventListener('click', () => {
+            searchInput.value = student.name;
+            selectedIdInput.value = student.id;
+            dropdown.style.display = 'none';
+          });
+          dropdown.appendChild(div);
+        });
+        dropdown.style.display = filteredStudents.length > 0 ? 'block' : 'none';
+      });
+      
+      searchInput.addEventListener('focus', () => {
+        if (searchInput.value === '') {
+          dropdown.innerHTML = '';
+          students.forEach(student => {
+            const div = document.createElement('div');
+            div.textContent = `${student.name} (${student.email})`;
+            div.dataset.id = student.id;
+            div.addEventListener('click', () => {
+              searchInput.value = student.name;
+              selectedIdInput.value = student.id;
+              dropdown.style.display = 'none';
+            });
+            dropdown.appendChild(div);
+          });
+          dropdown.style.display = 'block';
+        }
+      });
     }
     
     document.getElementById('studentForm').addEventListener('submit', (e) => {
@@ -449,11 +530,7 @@
       const name = document.getElementById('studentName').value;
       const email = document.getElementById('studentEmail').value;
       const students = JSON.parse(localStorage.getItem('students')) || [];
-      const newStudent = {
-        id: `stu${Date.now()}`,
-        name,
-        email
-      };
+      const newStudent = { id: `stu${Date.now()}`, name, email };
       students.push(newStudent);
       localStorage.setItem('students', JSON.stringify(students));
       loadStudents();
@@ -497,8 +574,12 @@
     
     document.getElementById('sessionalForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const studentId = document.getElementById('studentSelect').value;
+      const studentId = document.getElementById('selectedStudentId').value;
       const marks = document.getElementById('sessionalMarks').value;
+      if (!studentId) {
+        alert('Please select a student.');
+        return;
+      }
       const sessional = JSON.parse(localStorage.getItem('sessional')) || [];
       const newSessional = {
         id: Date.now().toString(),
@@ -510,6 +591,7 @@
       localStorage.setItem('sessional', JSON.stringify(sessional));
       loadSessional();
       e.target.reset();
+      document.getElementById('selectedStudentId').value = '';
     });
     
     document.getElementById('studentEditForm').addEventListener('submit', (e) => {
@@ -691,7 +773,7 @@
     }
     
     document.addEventListener('DOMContentLoaded', () => {
-      loadStudents(); // Changed default section to Students
+      loadStudents();
       loadAssignments();
       loadSessional();
       loadProfile();
