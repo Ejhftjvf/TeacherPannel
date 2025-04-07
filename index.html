@@ -1,433 +1,702 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teacher Panel (Demo)</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-        }
-
-        .container {
-            display: flex;
-            height: 100vh;
-        }
-
-        .sidebar {
-            width: 250px;
-            background-color: #2c3e50;
-            color: white;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .sidebar .pfp-container {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin-bottom: 20px;
-            background-color: #34495e;
-        }
-
-        .sidebar .pfp-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .sidebar h2 {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .sidebar ul {
-            list-style: none;
-            width: 100%;
-        }
-
-        .sidebar li {
-            padding: 15px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            text-align: center;
-        }
-
-        .sidebar li:hover {
-            background-color: #34495e;
-        }
-
-        .content {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        .section {
-            display: none;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            max-width: 400px;
-            margin-bottom: 20px;
-        }
-
-        input, textarea, select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 10px;
-            background-color: #2c3e50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        button:hover {
-            background-color: #34495e;
-        }
-
-        .grid-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .list-item {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .list-item h4 {
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .list-item p {
-            margin: 5px 0;
-            color: #666;
-        }
-
-        .list-item a {
-            color: #2c3e50;
-            text-decoration: none;
-        }
-
-        .list-item a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teacher Panel (Demo)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    .topnav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: #2c3e50;
+      color: #fff;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1100;
+    }
+    .topnav .profile-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .topnav .pfp-container img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: none;
+    }
+    .topnav .teacher-name {
+      font-size: 20px;
+      font-weight: bold;
+    }
+    .hamburger {
+      font-size: 24px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #fff;
+      display: none;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 220px;
+      height: 100%;
+      background-color: #2c3e50;
+      padding-top: 70px;
+      transition: 0.3s;
+      z-index: 1050;
+    }
+    .sidebar h2 {
+      color: #fff;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .sidebar ul {
+      list-style: none;
+    }
+    .sidebar ul li {
+      padding: 12px 20px;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sidebar ul li:hover {
+      background-color: #34495e;
+    }
+    .content {
+      margin-top: 70px;
+      margin-left: 220px;
+      padding: 20px;
+      transition: margin-left 0.3s;
+    }
+    .section {
+      display: none;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .section.active {
+      display: block;
+    }
+    form input, form textarea, form button, form select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+    }
+    form button {
+      background-color: #2c3e50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    form button:hover {
+      background-color: #34495e;
+    }
+    .grid-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .list-item {
+      background: #fafafa;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      position: relative;
+    }
+    .action-btn {
+      margin-right: 5px;
+      padding: 5px 10px;
+      border: none;
+      background: #2c3e50;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .delete-btn {
+      background: #e74c3c;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1200;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 4px;
+      width: 90%;
+      max-width: 400px;
+    }
+    .modal-buttons {
+      text-align: right;
+    }
+    .cancel-btn {
+      background: #777;
+    }
+    .profile-card {
+      background: #fafafa;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      max-width: 300px;
+      margin-bottom: 15px;
+    }
+    .profile-card img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
+      display: none;
+    }
+    .edit-profile-btn {
+      background-color: #2c3e50;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .edit-profile-btn:hover {
+      background-color: #34495e;
+    }
+    @media (max-width: 768px) {
+      .hamburger {
+        display: block;
+      }
+      .sidebar {
+        left: -220px;
+      }
+      .sidebar.show {
+        left: 0;
+      }
+      .content {
+        margin-left: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <nav class="sidebar">
-            <div class="pfp-container" id="pfpContainer">
-                <img id="pfpImage" src="" alt="Profile Picture" style="display: none;">
-            </div>
-            <h2>Teacher Panel</h2>
-            <ul>
-                <li onclick="showSection('profile')">Profile</li>
-                <li onclick="showSection('students')">Students</li>
-                <li onclick="showSection('assignments')">Assignments</li>
-                <li onclick="showSection('sessional')">Sessional</li>
-                <li onclick="logout()">Logout</li>
-            </ul>
-        </nav>
-
-        <main class="content">
-            <!-- Profile Section -->
-            <section id="profile" class="section active">
-                <h2>Profile</h2>
-                <div id="profileInfo" class="grid-list"></div>
-                <form id="profileForm">
-                    <input type="text" id="teacherName" placeholder="Name" required>
-                    <input type="email" id="teacherEmail" placeholder="Email" required>
-                    <input type="file" id="profilePic" accept="image/*">
-                    <button type="submit">Update Profile</button>
-                </form>
-            </section>
-
-            <!-- Students Section -->
-            <section id="students" class="section">
-                <h2>Students List</h2>
-                <div id="studentsList" class="grid-list"></div>
-            </section>
-
-            <!-- Assignments Section -->
-            <section id="assignments" class="section">
-                <h2>Assignments</h2>
-                <form id="assignmentForm">
-                    <input type="text" id="assignmentTitle" placeholder="Assignment Title" required>
-                    <textarea id="assignmentDesc" placeholder="Description" required></textarea>
-                    <input type="date" id="dueDate" required>
-                    <input type="file" id="assignmentPdf" accept=".pdf">
-                    <button type="submit">Create Assignment</button>
-                </form>
-                <div id="assignmentsList" class="grid-list"></div>
-            </section>
-
-            <!-- Sessional Section -->
-            <section id="sessional" class="section">
-                <h2>Sessional Marks</h2>
-                <form id="sessionalForm">
-                    <select id="studentSelect" required></select>
-                    <input type="number" id="sessionalMarks" placeholder="Marks (0-100)" min="0" max="100" required>
-                    <button type="submit">Submit Marks</button>
-                </form>
-                <div id="sessionalList" class="grid-list"></div>
-            </section>
-        </main>
+  <div class="topnav">
+    <div class="profile-container">
+      <div class="pfp-container">
+        <img id="topnavPfpImage" src="" alt="Profile Picture">
+      </div>
+      <div class="teacher-name" id="topnavTeacherName"></div>
     </div>
-
-    <script>
-        // Demo data initialization
-        const demoStudents = [
-            { id: "stu1", name: "John Doe", email: "john@example.com" },
-            { id: "stu2", name: "Jane Smith", email: "jane@example.com" },
-            { id: "stu3", name: "Bob Johnson", email: "bob@example.com" }
-        ];
-
-        // Initialize localStorage with demo data if not already present
-        if (!localStorage.getItem('students')) {
-            localStorage.setItem('students', JSON.stringify(demoStudents));
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+  </div>
+  
+  <nav class="sidebar" id="sidebar">
+    <h2>Teacher Panel</h2>
+    <ul>
+      <li onclick="showSection('students')">Students</li>
+      <li onclick="showSection('assignments')">Assignments</li>
+      <li onclick="showSection('sessional')">Sessional</li>
+      <li onclick="showSection('profile')">Profile</li>
+      <li onclick="logout()">Logout</li>
+    </ul>
+  </nav>
+  
+  <main class="content">
+    <section id="students" class="section active">
+      <h2>Students List</h2>
+      <form id="studentForm">
+        <input type="text" id="studentName" placeholder="Student Name" required>
+        <input type="email" id="studentEmail" placeholder="Student Email" required>
+        <button type="submit">Add Student</button>
+      </form>
+      <div id="studentsList" class="grid-list"></div>
+    </section>
+    
+    <section id="assignments" class="section">
+      <h2>Assignments</h2>
+      <form id="assignmentForm">
+        <input type="text" id="assignmentTitle" placeholder="Assignment Title" required>
+        <textarea id="assignmentDesc" placeholder="Description" required></textarea>
+        <input type="date" id="dueDate" required>
+        <input type="file" id="assignmentPdf" accept=".pdf">
+        <button type="submit">Create Assignment</button>
+      </form>
+      <div id="assignmentsList" class="grid-list"></div>
+    </section>
+    
+    <section id="sessional" class="section">
+      <h2>Sessional Marks</h2>
+      <form id="sessionalForm">
+        <select id="studentSelect" required></select>
+        <input type="number" id="sessionalMarks" placeholder="Marks (0-100)" min="0" max="100" required>
+        <button type="submit">Submit Marks</button>
+      </form>
+      <div id="sessionalList" class="grid-list"></div>
+    </section>
+    
+    <section id="profile" class="section">
+      <div class="profile-card">
+        <img id="profilePfpImage" src="" alt="Profile Picture">
+        <h3 id="profileCardName"></h3>
+        <p id="profileCardEmail"></p>
+      </div>
+      <button class="edit-profile-btn" onclick="showProfileEditModal()">Edit Profile</button>
+    </section>
+  </main>
+  
+  <!-- Modals -->
+  <div id="studentEditModal" class="modal">
+    <div class="modal-content">
+      <h3>Edit Student</h3>
+      <form id="studentEditForm">
+        <input type="hidden" id="editStudentId">
+        <input type="text" id="editStudentName" placeholder="Student Name" required>
+        <input type="email" id="editStudentEmail" placeholder="Student Email" required>
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" onclick="closeModal('studentEditModal')">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div id="assignmentEditModal" class="modal">
+    <div class="modal-content">
+      <h3>Edit Assignment</h3>
+      <form id="assignmentEditForm">
+        <input type="hidden" id="editAssignmentId">
+        <input type="text" id="editAssignmentTitle" placeholder="Assignment Title" required>
+        <textarea id="editAssignmentDesc" placeholder="Description" required></textarea>
+        <input type="date" id="editAssignmentDueDate" required>
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" onclick="closeModal('assignmentEditModal')">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div id="sessionalEditModal" class="modal">
+    <div class="modal-content">
+      <h3>Edit Sessional Marks</h3>
+      <form id="sessionalEditForm">
+        <input type="hidden" id="editSessionalId">
+        <input type="number" id="editSessionalMarks" placeholder="Marks (0-100)" min="0" max="100" required>
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" onclick="closeModal('sessionalEditModal')">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div id="profileEditModal" class="modal">
+    <div class="modal-content">
+      <h3>Edit Profile</h3>
+      <form id="profileEditForm">
+        <input type="text" id="editTeacherName" placeholder="Name" required>
+        <input type="email" id="editTeacherEmail" placeholder="Email" required>
+        <input type="file" id="editProfilePic" accept="image/*">
+        <div class="modal-buttons">
+          <button type="button" class="cancel-btn" onclick="closeModal('profileEditModal')">Cancel</button>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('show');
+    }
+    
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => {
+        sec.classList.remove('active');
+      });
+      document.getElementById(id).classList.add('active');
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('show');
+      }
+    }
+    
+    function logout() {
+      alert("Logged out successfully!");
+      if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('show');
+      }
+    }
+    
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+    
+    window.onclick = function(event) {
+      const modals = document.getElementsByClassName('modal');
+      for (let modal of modals) {
+        if (event.target === modal) {
+          modal.style.display = 'none';
         }
-        if (!localStorage.getItem('assignments')) {
-            localStorage.setItem('assignments', JSON.stringify([]));
+      }
+    }
+    
+    function loadProfile() {
+      showSection('profile');
+      const teacher = JSON.parse(localStorage.getItem('teacher')) || { name: "Demo Teacher", email: "teacher@example.com", pfp: null };
+      document.getElementById('topnavTeacherName').textContent = teacher.name;
+      document.getElementById('profileCardName').textContent = teacher.name;
+      document.getElementById('profileCardEmail').textContent = teacher.email;
+      const profilePfp = document.getElementById('profilePfpImage');
+      if (teacher.pfp) {
+        profilePfp.src = teacher.pfp;
+        profilePfp.style.display = 'block';
+      } else {
+        profilePfp.style.display = 'none';
+      }
+    }
+    
+    function loadStudents() {
+      showSection('students');
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      let html = '';
+      const studentSelect = document.getElementById('studentSelect');
+      if(studentSelect) studentSelect.innerHTML = '<option value="">Select Student</option>';
+      students.forEach(student => {
+        html += `
+          <div class="list-item">
+            <h4>${student.name}</h4>
+            <p>Email: ${student.email}</p>
+            <p>ID: ${student.id}</p>
+            <button class="action-btn" onclick="showStudentEditModal('${student.id}')">Edit</button>
+            <button class="action-btn delete-btn" onclick="deleteStudent('${student.id}')">Delete</button>
+          </div>
+        `;
+        if(studentSelect) studentSelect.innerHTML += `<option value="${student.id}">${student.name}</option>`;
+      });
+      document.getElementById('studentsList').innerHTML = html;
+    }
+    
+    function loadAssignments() {
+      showSection('assignments');
+      const assignments = JSON.parse(localStorage.getItem('assignments')) || [];
+      let html = '';
+      assignments.forEach(assignment => {
+        html += `
+          <div class="list-item">
+            <h4>${assignment.title}</h4>
+            <p>${assignment.description}</p>
+            <p>Due: ${assignment.dueDate}</p>
+            ${assignment.pdfUrl ? `<p><a href="${assignment.pdfUrl}" download="${assignment.pdfName}">Download PDF: ${assignment.pdfName}</a></p>` : ''}
+            <button class="action-btn" onclick="showAssignmentEditModal('${assignment.id}')">Edit</button>
+            <button class="action-btn delete-btn" onclick="deleteAssignment('${assignment.id}')">Delete</button>
+          </div>
+        `;
+      });
+      document.getElementById('assignmentsList').innerHTML = html;
+    }
+    
+    function loadSessional() {
+      showSection('sessional');
+      const sessional = JSON.parse(localStorage.getItem('sessional')) || [];
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      let html = '';
+      sessional.forEach(record => {
+        const student = students.find(s => s.id === record.studentId);
+        if (student) {
+          html += `
+            <div class="list-item">
+              <h4>${student.name}</h4>
+              <p>Marks: ${record.marks}</p>
+              <p>Date: ${new Date(record.createdAt).toLocaleDateString()}</p>
+              <button class="action-btn" onclick="showSessionalEditModal('${record.id}')">Edit</button>
+              <button class="action-btn delete-btn" onclick="deleteSessional('${record.id}')">Delete</button>
+            </div>
+          `;
         }
-        if (!localStorage.getItem('sessional')) {
-            localStorage.setItem('sessional', JSON.stringify([]));
+      });
+      document.getElementById('sessionalList').innerHTML = html;
+    }
+    
+    document.getElementById('studentForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('studentName').value;
+      const email = document.getElementById('studentEmail').value;
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const newStudent = {
+        id: `stu${Date.now()}`,
+        name,
+        email
+      };
+      students.push(newStudent);
+      localStorage.setItem('students', JSON.stringify(students));
+      loadStudents();
+      e.target.reset();
+    });
+    
+    document.getElementById('assignmentForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('assignmentTitle').value;
+      const desc = document.getElementById('assignmentDesc').value;
+      const dueDate = document.getElementById('dueDate').value;
+      const pdfFile = document.getElementById('assignmentPdf').files[0];
+      const assignments = JSON.parse(localStorage.getItem('assignments')) || [];
+      const newAssignment = {
+        id: Date.now().toString(),
+        title,
+        description: desc,
+        dueDate,
+        createdAt: new Date().toISOString(),
+        pdfUrl: null,
+        pdfName: null
+      };
+      if (pdfFile) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          newAssignment.pdfUrl = event.target.result;
+          newAssignment.pdfName = pdfFile.name;
+          assignments.push(newAssignment);
+          localStorage.setItem('assignments', JSON.stringify(assignments));
+          loadAssignments();
+          e.target.reset();
+        };
+        reader.readAsDataURL(pdfFile);
+      } else {
+        assignments.push(newAssignment);
+        localStorage.setItem('assignments', JSON.stringify(assignments));
+        loadAssignments();
+        e.target.reset();
+      }
+    });
+    
+    document.getElementById('sessionalForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const studentId = document.getElementById('studentSelect').value;
+      const marks = document.getElementById('sessionalMarks').value;
+      const sessional = JSON.parse(localStorage.getItem('sessional')) || [];
+      const newSessional = {
+        id: Date.now().toString(),
+        studentId,
+        marks: parseInt(marks),
+        createdAt: new Date().toISOString()
+      };
+      sessional.push(newSessional);
+      localStorage.setItem('sessional', JSON.stringify(sessional));
+      loadSessional();
+      e.target.reset();
+    });
+    
+    document.getElementById('studentEditForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editStudentId').value;
+      const name = document.getElementById('editStudentName').value;
+      const email = document.getElementById('editStudentEmail').value;
+      let students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students.find(s => s.id === id);
+      if (student) {
+        student.name = name;
+        student.email = email;
+        localStorage.setItem('students', JSON.stringify(students));
+        loadStudents();
+        loadSessional();
+        closeModal('studentEditModal');
+      }
+    });
+    
+    document.getElementById('assignmentEditForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editAssignmentId').value;
+      const title = document.getElementById('editAssignmentTitle').value;
+      const desc = document.getElementById('editAssignmentDesc').value;
+      const dueDate = document.getElementById('editAssignmentDueDate').value;
+      let assignments = JSON.parse(localStorage.getItem('assignments')) || [];
+      const assignment = assignments.find(a => a.id === id);
+      if (assignment) {
+        assignment.title = title;
+        assignment.description = desc;
+        assignment.dueDate = dueDate;
+        localStorage.setItem('assignments', JSON.stringify(assignments));
+        loadAssignments();
+        closeModal('assignmentEditModal');
+      }
+    });
+    
+    document.getElementById('sessionalEditForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editSessionalId').value;
+      const marks = document.getElementById('editSessionalMarks').value;
+      if (marks >= 0 && marks <= 100) {
+        let sessional = JSON.parse(localStorage.getItem('sessional')) || [];
+        const record = sessional.find(r => r.id === id);
+        if (record) {
+          record.marks = parseInt(marks);
+          localStorage.setItem('sessional', JSON.stringify(sessional));
+          loadSessional();
+          closeModal('sessionalEditModal');
         }
-        if (!localStorage.getItem('teacher')) {
-            localStorage.setItem('teacher', JSON.stringify({ name: "Demo Teacher", email: "teacher@example.com", pfp: null }));
+      }
+    });
+    
+    document.getElementById('profileEditForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('editTeacherName').value;
+      const email = document.getElementById('editTeacherEmail').value;
+      const pfpFile = document.getElementById('editProfilePic').files[0];
+      let teacherData = JSON.parse(localStorage.getItem('teacher')) || { name: "Demo Teacher", email: "teacher@example.com", pfp: null };
+      if (pfpFile) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          teacherData = { name, email, pfp: event.target.result };
+          localStorage.setItem('teacher', JSON.stringify(teacherData));
+          loadProfile();
+          updatePfpDisplay();
+          closeModal('profileEditModal');
+        };
+        reader.readAsDataURL(pfpFile);
+      } else {
+        teacherData = { name, email, pfp: teacherData.pfp };
+        localStorage.setItem('teacher', JSON.stringify(teacherData));
+        loadProfile();
+        updatePfpDisplay();
+        closeModal('profileEditModal');
+      }
+    });
+    
+    function showStudentEditModal(id) {
+      const students = JSON.parse(localStorage.getItem('students')) || [];
+      const student = students.find(s => s.id === id);
+      if (student) {
+        document.getElementById('editStudentId').value = student.id;
+        document.getElementById('editStudentName').value = student.name;
+        document.getElementById('editStudentEmail').value = student.email;
+        document.getElementById('studentEditModal').style.display = 'flex';
+      }
+    }
+    
+    function showAssignmentEditModal(id) {
+      const assignments = JSON.parse(localStorage.getItem('assignments')) || [];
+      const assignment = assignments.find(a => a.id === id);
+      if (assignment) {
+        document.getElementById('editAssignmentId').value = assignment.id;
+        document.getElementById('editAssignmentTitle').value = assignment.title;
+        document.getElementById('editAssignmentDesc').value = assignment.description;
+        document.getElementById('editAssignmentDueDate').value = assignment.dueDate;
+        document.getElementById('assignmentEditModal').style.display = 'flex';
+      }
+    }
+    
+    function showSessionalEditModal(id) {
+      const sessional = JSON.parse(localStorage.getItem('sessional')) || [];
+      const record = sessional.find(r => r.id === id);
+      if (record) {
+        document.getElementById('editSessionalId').value = record.id;
+        document.getElementById('editSessionalMarks').value = record.marks;
+        document.getElementById('sessionalEditModal').style.display = 'flex';
+      }
+    }
+    
+    function showProfileEditModal() {
+      const teacher = JSON.parse(localStorage.getItem('teacher')) || { name: "Demo Teacher", email: "teacher@example.com", pfp: null };
+      document.getElementById('editTeacherName').value = teacher.name;
+      document.getElementById('editTeacherEmail').value = teacher.email;
+      document.getElementById('profileEditModal').style.display = 'flex';
+    }
+    
+    function deleteStudent(id) {
+      if (confirm('Are you sure you want to delete this student?')) {
+        let students = JSON.parse(localStorage.getItem('students')) || [];
+        students = students.filter(s => s.id !== id);
+        localStorage.setItem('students', JSON.stringify(students));
+        loadStudents();
+        loadSessional();
+      }
+    }
+    
+    function deleteAssignment(id) {
+      if (confirm('Are you sure you want to delete this assignment?')) {
+        let assignments = JSON.parse(localStorage.getItem('assignments')) || [];
+        assignments = assignments.filter(a => a.id !== id);
+        localStorage.setItem('assignments', JSON.stringify(assignments));
+        loadAssignments();
+      }
+    }
+    
+    function deleteSessional(id) {
+      if (confirm('Are you sure you want to delete this sessional record?')) {
+        let sessional = JSON.parse(localStorage.getItem('sessional')) || [];
+        sessional = sessional.filter(r => r.id !== id);
+        localStorage.setItem('sessional', JSON.stringify(sessional));
+        loadSessional();
+      }
+    }
+    
+    function updatePfpDisplay() {
+      const teacher = JSON.parse(localStorage.getItem('teacher')) || {};
+      const pfpImages = [
+        document.getElementById('topnavPfpImage'),
+        document.getElementById('profilePfpImage')
+      ];
+      pfpImages.forEach(img => {
+        if (teacher.pfp) {
+          img.src = teacher.pfp;
+          img.style.display = 'block';
+        } else {
+          img.style.display = 'none';
         }
-
-        // Show/hide sections
-        function showSection(sectionId) {
-            document.querySelectorAll('.section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById(sectionId).classList.add('active');
-        }
-
-        // Logout (simulated)
-        function logout() {
-            alert('Logged out (simulated)');
-        }
-
-        // Update PFP display
-        function updatePfpDisplay() {
-            const teacher = JSON.parse(localStorage.getItem('teacher'));
-            const pfpImage = document.getElementById('pfpImage');
-            if (teacher.pfp) {
-                pfpImage.src = teacher.pfp;
-                pfpImage.style.display = 'block';
-            } else {
-                pfpImage.style.display = 'none';
-            }
-        }
-
-        // Profile Management with PFP
-        document.getElementById('profileForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('teacherName').value;
-            const email = document.getElementById('teacherEmail').value;
-            const pfpFile = document.getElementById('profilePic').files[0];
-            
-            const teacherData = JSON.parse(localStorage.getItem('teacher')) || { name: "Demo Teacher", email: "teacher@example.com", pfp: null };
-
-            if (pfpFile) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    teacherData.name = name;
-                    teacherData.email = email;
-                    teacherData.pfp = event.target.result; // Store image as base64
-                    localStorage.setItem('teacher', JSON.stringify(teacherData));
-                    loadProfile();
-                    updatePfpDisplay();
-                    alert('Profile updated successfully');
-                };
-                reader.readAsDataURL(pfpFile);
-            } else {
-                teacherData.name = name;
-                teacherData.email = email;
-                localStorage.setItem('teacher', JSON.stringify(teacherData));
-                loadProfile();
-                updatePfpDisplay();
-                alert('Profile updated successfully');
-            }
-        });
-
-        function loadProfile() {
-            const teacher = JSON.parse(localStorage.getItem('teacher'));
-            document.getElementById('profileInfo').innerHTML = `
-                <div class="list-item">
-                    <h4>Teacher Profile</h4>
-                    <p>Name: ${teacher.name}</p>
-                    <p>Email: ${teacher.email}</p>
-                    ${teacher.pfp ? '<p>Profile Picture: Uploaded</p>' : '<p>No Profile Picture</p>'}
-                </div>
-            `;
-        }
-
-        // Students Management
-        function loadStudents() {
-            const students = JSON.parse(localStorage.getItem('students'));
-            let html = '';
-            const studentSelect = document.getElementById('studentSelect');
-            studentSelect.innerHTML = '<option value="">Select Student</option>';
-            
-            students.forEach(student => {
-                html += `
-                    <div class="list-item">
-                        <h4>${student.name}</h4>
-                        <p>Email: ${student.email}</p>
-                        <p>ID: ${student.id}</p>
-                    </div>
-                `;
-                studentSelect.innerHTML += `<option value="${student.id}">${student.name}</option>`;
-            });
-            document.getElementById('studentsList').innerHTML = html;
-        }
-
-        // Assignments Management with PDF Upload
-        document.getElementById('assignmentForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const title = document.getElementById('assignmentTitle').value;
-            const desc = document.getElementById('assignmentDesc').value;
-            const dueDate = document.getElementById('dueDate').value;
-            const pdfFile = document.getElementById('assignmentPdf').files[0];
-
-            const assignments = JSON.parse(localStorage.getItem('assignments'));
-            const newAssignment = {
-                id: Date.now().toString(),
-                title,
-                description: desc,
-                dueDate,
-                createdAt: new Date().toISOString(),
-                pdfUrl: null,
-                pdfName: null
-            };
-
-            if (pdfFile) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    newAssignment.pdfUrl = event.target.result;
-                    newAssignment.pdfName = pdfFile.name;
-                    assignments.push(newAssignment);
-                    localStorage.setItem('assignments', JSON.stringify(assignments));
-                    loadAssignments();
-                    e.target.reset();
-                    alert('Assignment created successfully');
-                };
-                reader.readAsDataURL(pdfFile);
-            } else {
-                assignments.push(newAssignment);
-                localStorage.setItem('assignments', JSON.stringify(assignments));
-                loadAssignments();
-                e.target.reset();
-                alert('Assignment created successfully');
-            }
-        });
-
-        function loadAssignments() {
-            const assignments = JSON.parse(localStorage.getItem('assignments'));
-            let html = '';
-            assignments.forEach(assignment => {
-                html += `
-                    <div class="list-item">
-                        <h4>${assignment.title}</h4>
-                        <p>${assignment.description}</p>
-                        <p>Due: ${assignment.dueDate}</p>
-                        ${assignment.pdfUrl ? `<p><a href="${assignment.pdfUrl}" download="${assignment.pdfName}">Download PDF: ${assignment.pdfName}</a></p>` : ''}
-                    </div>
-                `;
-            });
-            document.getElementById('assignmentsList').innerHTML = html;
-        }
-
-        // Sessional Management
-        document.getElementById('sessionalForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const studentId = document.getElementById('studentSelect').value;
-            const marks = document.getElementById('sessionalMarks').value;
-
-            const sessional = JSON.parse(localStorage.getItem('sessional'));
-            const newSessional = {
-                id: Date.now().toString(),
-                studentId,
-                marks: parseInt(marks),
-                createdAt: new Date().toISOString()
-            };
-            sessional.push(newSessional);
-            localStorage.setItem('sessional', JSON.stringify(sessional));
-            
-            loadSessional();
-            e.target.reset();
-            alert('Marks submitted successfully');
-        });
-
-        function loadSessional() {
-            const sessional = JSON.parse(localStorage.getItem('sessional'));
-            const students = JSON.parse(localStorage.getItem('students'));
-            let html = '';
-            
-            sessional.forEach(record => {
-                const student = students.find(s => s.id === record.studentId);
-                if (student) {
-                    html += `
-                        <div class="list-item">
-                            <h4>${student.name}</h4>
-                            <p>Marks: ${record.marks}</p>
-                            <p>Date: ${new Date(record.createdAt).toLocaleDateString()}</p>
-                        </div>
-                    `;
-                }
-            });
-            document.getElementById('sessionalList').innerHTML = html;
-        }
-
-        // Initial load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadProfile();
-            loadStudents();
-            loadAssignments();
-            loadSessional();
-            updatePfpDisplay();
-        });
-    </script>
+      });
+    }
+    
+    const demoStudents = [
+      { id: "stu1", name: "John Doe", email: "john@example.com" },
+      { id: "stu2", name: "Jane Smith", email: "jane@example.com" },
+      { id: "stu3", name: "Bob Johnson", email: "bob@example.com" }
+    ];
+    if (!localStorage.getItem('students')) {
+      localStorage.setItem('students', JSON.stringify(demoStudents));
+    }
+    if (!localStorage.getItem('assignments')) {
+      localStorage.setItem('assignments', JSON.stringify([]));
+    }
+    if (!localStorage.getItem('sessional')) {
+      localStorage.setItem('sessional', JSON.stringify([]));
+    }
+    if (!localStorage.getItem('teacher')) {
+      localStorage.setItem('teacher', JSON.stringify({ name: "Demo Teacher", email: "teacher@example.com", pfp: null }));
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStudents(); // Changed default section to Students
+      loadAssignments();
+      loadSessional();
+      loadProfile();
+      updatePfpDisplay();
+    });
+  </script>
 </body>
 </html>
