@@ -246,31 +246,6 @@
             background: #DBEAFE;
         }
 
-        .quick-actions {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            padding: 12px;
-            background: var(--btn-bg);
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            flex: 1;
-            min-width: 150px;
-            text-align: center;
-        }
-
-        .action-btn:hover {
-            background: var(--btn-hover);
-        }
-
         #status {
             margin-top: 12px;
             font-size: 14px;
@@ -284,7 +259,7 @@
             color: var(--text-color);
             font-size: 20px;
             cursor: pointer;
-            align-self bipartisan: flex-end;
+            align-self: flex-end;
             margin-bottom: 12px;
         }
 
@@ -341,12 +316,6 @@
             .data-section h2 {
                 font-size: 16px;
             }
-
-            .action-btn {
-                min-width: 100%;
-                padding: 10px;
-                font-size: 13px;
-            }
         }
     </style>
 </head>
@@ -366,7 +335,7 @@
             <button title="File Manager" onclick="window.location.href='t_file.html'">📁 Profile</button>
             <button title="Marks Management" onclick="window.location.href='t_marks.html'">📊 Sessional</button>
         </nav>
-
+        <button class="settings-btn" title="Open settings">⚙️ Settings</button>
         <button class="logout-btn" title="Logout" id="logoutBtn">🚪 Logout</button>
     </aside>
 
@@ -400,14 +369,6 @@
                 </thead>
                 <tbody></tbody>
             </table>
-        </section>
-        <section class="data-section">
-            <h2>Quick Actions</h2>
-            <div class="quick-actions">
-                <button class="action-btn" onclick="window.location.href='teacher.html'">Record Attendance</button>
-                <button class="action-btn" onclick="window.location.href='t_marks.html'">Upload Marks</button>
-                <button class="5action-btn" onclick="window.location.href='add_student.html'">Add Student</button>
-            </div>
         </section>
         <div id="status"></div>
     </main>
@@ -448,14 +409,26 @@
         });
 
         // Logout
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            signOut(auth).then(() => {
-                window.location.href = 't_login.html';
-            }).catch((error) => {
-                console.error('Logout error:', error);
-                document.getElementById('status').textContent = 'Logout failed: ' + error.message;
-                document.getState('status').style.color = 'var(--notification-error-bg)';
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', () => {
+                    console.log('Logout button clicked');
+                    signOut(auth).then(() => {
+                        window.location.href = 't_login.html';
+                    }).catch((error) => {
+                        console.error('Logout error:', error);
+                        const statusElement = document.getElementById('status');
+                        statusElement.textContent = `Logout failed: ${error.message}. Please try again.`;
+                        statusElement.style.color = 'var(--notification-error-bg)';
+                        if (error.code === 'auth/network-request-failed') {
+                            setTimeout(() => signOut(auth).then(() => window.location.href = 't_login.html'), 2000);
+                        }
+                    });
+                });
+            } else {
+                console.error('Logout button not found');
+            }
         });
 
         // Authentication check
@@ -473,24 +446,95 @@
                 // Fetch total students
                 const studentsRef = ref(database, 'students');
                 const studentsSnapshot = await get(studentsRef);
-                const students = studentsSnapshot.val();
-                const totalStudents = students ? Object.keys(students).length : 0;
+                const students = studentsSnapshot.val() || {};
+                const totalStudents = Object.keys(students).length;
                 document.getElementById('totalStudents').textContent = totalStudents;
 
-                // Mock data for classes today and average attendance
-                document.getElementById('classesToday').textContent = '3';
-                document.getElementById('avgAttendance').textContent = '85%';
+                // Fetch classes today
+                const today = '2025-05-01'; // Current date
+                const teacherAttendanceRef = ref(database, 'teacher_attendance');
+                const teacherAttendanceSnapshot = await get(teacherAttendanceRef);
+                const teacherAttendance = teacherAttendanceSnapshot.val() || {};
+                const classesToday = Object.keys(teacherAttendance).filter(key => key.startsWith(today)).length;
+                document.getElementById('classesToday').textContent = classesToday;
 
-                // Mock recent activities
-                const activities = [
-                    { date: '2025-05-01', action: 'Attendance Recorded', details: 'Semester 3, DBMS' },
-                    { date: '2025-04-30', action: 'Marks Uploaded', details: 'Semester 4, OOPS, Sessional 2' },
-                    { date: '2025-04-29', action: 'Student Added', details: 'John Doe, Roll No: 12345' }
-                ];
+                // Calculate average attendance
+                const attendanceRef = ref(database, 'attendance');
+                const attendanceSnapshot = await get(attendanceRef);
+                const attendanceData = attendanceSnapshot.val() || {};
+                let totalClasses = 0;
+                let attendedClasses = 0;
+                let studentCount = 0;
 
+                Object.keys(attendanceData).forEach(rollNo => {
+                    const subjects = attendanceData[rollNo];
+                    Object.keys(subjects).forEach(subject => {
+                        const { totalClasses: tc, attendedClasses: ac } = subjects[subject];
+                        totalClasses += tc || 0;
+                        attendedClasses += ac || 0;
+                    });
+                    studentCount++;
+                });
+
+                const avgAttendance = totalClasses > 0 ? ((attendedClasses / totalClasses) * 100).toFixed(1) : 0;
+                document.getElementById('avgAttendance').textContent = `${avgAttendance}%`;
+
+                // Fetch recent activities
+                const activities = [];
+
+                // Attendance activities
+                Object.keys(teacherAttendance).forEach(key => {
+                    const [date, subject] = key.split('_');
+                    activities.push({
+                        date,
+                        action: 'Attendance Recorded',
+                        details: `Semester ?, ${subject}`, // Semester not stored in teacher_attendance
+                        timestamp: new Date(date).getTime()
+                    });
+                });
+
+                // Marks activities
+                const sessionalMarksRef = ref(database, 'sessional_marks');
+                const marksSnapshot = await get(sessionalMarksRef);
+                const marksData = marksSnapshot.val() || {};
+                Object.keys(marksData).forEach(rollNo => {
+                    const semesters = marksData[rollNo];
+                    Object.keys(semesters).forEach(semester => {
+                        const subjects = semesters[semester];
+                        Object.keys(subjects).forEach(subject => {
+                            const sessionals = subjects[subject];
+                            Object.keys(sessionals).forEach(sessional => {
+                                activities.push({
+                                    date: '2025-05-01', // Placeholder, as marks don't have timestamps
+                                    action: 'Marks Uploaded',
+                                    details: `Semester ${semester}, ${subject}, ${sessional}`,
+                                    timestamp: new Date('2025-05-01').getTime() // Placeholder
+                                });
+                            });
+                        });
+                    });
+                });
+
+                // Student additions
+                Object.keys(students).forEach(rollNo => {
+                    const student = students[rollNo];
+                    const createdAt = student.createdAt || '2025-05-01'; // Fallback if no timestamp
+                    activities.push({
+                        date: createdAt,
+                        action: 'Student Added',
+                        details: `${student.name}, Roll No: ${rollNo}`,
+                        timestamp: new Date(createdAt).getTime()
+                    });
+                });
+
+                // Sort and limit to latest 5 activities
+                activities.sort((a, b) => b.timestamp - a.timestamp);
+                const recentActivities = activities.slice(0, 5);
+
+                // Populate activity table
                 const activityTableBody = document.querySelector('#activityTable tbody');
                 activityTableBody.innerHTML = '';
-                activities.forEach(activity => {
+                recentActivities.forEach(activity => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${activity.date}</td>
@@ -499,6 +543,10 @@
                     `;
                     activityTableBody.appendChild(row);
                 });
+
+                if (recentActivities.length === 0) {
+                    activityTableBody.innerHTML = '<tr><td colspan="3">No recent activities found.</td></tr>';
+                }
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
                 status.textContent = 'Error loading data: ' + error.message;
