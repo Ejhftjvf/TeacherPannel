@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #F5FAFF;
+            --card-bg: #FFFFFF;
+            --text-color: #1E3A8A;
+            --accent-color: #3B82F6;
+            --btn-bg: #3B82F6;
+            --btn-hover: #1E40AF;
+            --border-color: rgba(59, 130, 246, 0.2);
+            --shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+            --notification-success-bg: #10B981;
+            --notification-error-bg: #EF4444;
+            --border-radius: 12px;
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        .dashboard {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .mobile-header {
+            display: none;
+            background: var(--card-bg);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .hamburger {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: var(--card-bg);
+            padding: 16px;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .sidebar button {
+            padding: 10px;
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: left;
+        }
+
+        .sidebar button.active {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+        }
+
+        .sidebar button:hover {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+        }
+
+        .settings-btn, .logout-btn {
+            padding: 10px;
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 8px;
+        }
+
+        .logout-btn {
+            border-color: var(--notification-error-bg);
+            color: var(--notification-error-bg);
+        }
+
+        .logout-btn:hover {
+            background: var(--notification-error-bg);
+            color: #fff;
+        }
+
+        .settings-btn:hover {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            margin-left: 220px;
+        }
+
+        .header {
+            padding: 16px 0;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .student-section {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .student-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 12px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .controls input, .controls select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            width: 180px;
+            transition: var(--transition);
+        }
+
+        .controls input:focus, .controls select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .controls input::placeholder {
+            color: rgba(30, 58, 138, 0.5);
+        }
+
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(30, 58, 138, 0.5);
+        }
+
+        .form-btn {
+            padding: 12px;
+            background: var(--btn-bg);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .form-btn:hover {
+            background: var(--btn-hover);
+        }
+
+        .form-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .add-btn {
+            margin-top: 12px;
+            padding: 12px;
+            background: var(--btn-bg);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .add-btn:hover {
+            background: var(--btn-hover);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: var(--accent-color);
+            color: #fff;
+            font-weight: 500;
+        }
+
+        td {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover td {
+            background: #DBEAFE;
+        }
+
+        .action-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 8px;
+        }
+
+        .edit-btn {
+            background: var(--btn-bg);
+            color: #fff;
+        }
+
+        .edit-btn:hover {
+            background: var(--btn-hover);
+        }
+
+        .delete-btn {
+            background: var(--notification-error-bg);
+            color: #fff;
+        }
+
+        .delete-btn:hover {
+            background: #B91C1C;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-content h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 12px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .modal-status {
+            margin-top: 12px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .cancel-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+
+        .cancel-btn:hover {
+            background: #F3F4F6;
+        }
+
+        #status {
+            margin-top: 12px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .close-sidebar {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+            align-self: flex-end;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 80%;
+                max-width: 280px;
+                border-right: none;
+                box-shadow: var(--shadow);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .close-sidebar {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding-top: 60px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .controls input, .controls select {
+                width: 100%;
+            }
+
+            table {
+                overflow-x: auto;
+                display: block;
+            }
+
+            th, td {
+                padding: 8px;
+                font-size: 13px;
+                min-width: 100px;
+            }
+
+            .form-group input, .form-group select {
+                font-size: 13px;
+            }
+
+            .modal-content {
+                margin: 0 16px;
+            }
+
+            .add-btn {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .student-section h2 {
+                font-size: 16px;
+            }
+
+            .form-btn, .action-btn, .add-btn {
+                font-size: 13px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <header class="mobile-header">
+        <h1>Student Management</h1>
+        <button class="hamburger" aria-label="Toggle menu">☰</button>
+    </header>
+    <aside class="sidebar">
+        <button class="close-sidebar">×</button>
+        <h2>Teacher Portal</h2>
+        <nav>
+            <button title="Home" onclick="window.location.href='index.html'">🏠 Dashboard</button>
+            <button class="active" title="Student Management" onclick="window.location.href='s_add.html'">🎓 Students</button>
+            <button title="Attendance Record" onclick="window.location.href='t_attendance.html'">📅 Attendance</button>
+            <button title="File Manager" onclick="window.location.href='t_file.html'">📁 Profile</button>
+            <button title="Marks Management" onclick="window.location.href='t_marks.html'">📊 Sessional</button>
+        </nav>
+        <button class="settings-btn" title="Open settings">⚙️ Settings</button>
+        <button class="logout-btn" title="Logout" id="logoutBtn">🚪 Logout</button>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h1>Student Management</h1>
+        </header>
+        <section class="student-section">
+            <h2>Student List</h2>
+            <div class="controls">
+                <input type="text" id="searchInput" placeholder="Search by roll number, name, or father's name">
+                <select id="semesterFilter">
+                    <option value="">All Semesters</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+            </div>
+            <table id="studentTable">
+                <thead>
+                <tr>
+                    <th>Roll Number</th>
+                    <th>Name</th>
+                    <th>Father's Name</th>
+                    <th>Email</th>
+                    <th>Mobile</th>
+                    <th>Branch</th>
+                    <th>Semester</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button class="add-btn" id="openAddModal">Add New Student</button>
+            <div id="status"></div>
+        </section>
+    </main>
+
+    <!-- Add Student Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h2>Add New Student</h2>
+            <form id="addStudentForm" class="form-grid">
+                <div class="form-group">
+                    <label for="addRollNo">Roll Number</label>
+                    <input type="text" id="addRollNo" required placeholder="Enter roll number">
+                </div>
+                <div class="form-group">
+                    <label for="addName">Full Name</label>
+                    <input type="text" id="addName" required placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label for="addFatherName">Father's Name</label>
+                    <input type="text" id="addFatherName" required placeholder="Enter father's name">
+                </div>
+                <div class="form-group">
+                    <label for="addEmail">Email</label>
+                    <input type="email" id="addEmail" required placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label for="addMobile">Mobile Number</label>
+                    <input type="tel" id="addMobile" required placeholder="Enter mobile number">
+                </div>
+                <div class="form-group">
+                    <label for="addBranch">Branch</label>
+                    <select id="addBranch" required>
+                        <option value="COE">COE</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="addSemester">Semester</label>
+                    <select id="addSemester" required>
+                        <option value="">Select Semester</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="form-btn" id="addStudentBtn">Add Student</button>
+                    <button type="button" class="form-btn cancel-btn" id="cancelAdd">Cancel</button>
+                </div>
+                <div id="addStatus" class="modal-status"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Student</h2>
+            <form id="editStudentForm" class="form-grid">
+                <div class="form-group">
+                    <label for="editRollNo">Roll Number</label>
+                    <input type="text" id="editRollNo" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="editName">Full Name</label>
+                    <input type="text" id="editName" required placeholder="Enter full name">
+                </div>
+                <div class="form-group">
+                    <label for="editFatherName">Father's Name</label>
+                    <input type="text" id="editFatherName" required placeholder="Enter father's name">
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email</label>
+                    <input type="email" id="editEmail" required placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label for="editMobile">Mobile Number</label>
+                    <input type="tel" id="editMobile" required placeholder="Enter mobile number">
+                </div>
+                <div class="form-group">
+                    <label for="editBranch">Branch</label>
+                    <select id="editBranch" required>
+                        <option value="COE">COE</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Mechanical">Mechanical</option>
+                        <option value="Electrical">Electrical</option>
+                        <option value="Civil">Civil</option>
+                        <option value="Electronics">Electronics</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editSemester">Semester</label>
+                    <select id="editSemester" required>
+                        <option value="">Select Semester</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="form-btn">Save Changes</button>
+                    <button type="button" class="form-btn delete-btn" id="deleteStudent">Delete Student</button>
+                    <button type="button" class="form-btn cancel-btn" id="cancelEdit">Cancel</button>
+                </div>
+                <div id="editStatus" class="modal-status"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+    import { getDatabase, ref, get, set, remove } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBzguLoHs-7yrbSal8IBDqnKL8MWwlUJZA",
+        authDomain: "tmcp-a366e.firebaseapp.com",
+        databaseURL: "https://tmcp-a366e-default-rtdb.firebaseio.com",
+        projectId: "tmcp-a366e",
+        storageBucket: "tmcp-a366e.firebasestorage.app",
+        messagingSenderId: "136159734708",
+        appId: "1:136159734708:web:5f33b5cd7535c09227e0e1"
+    };
+
+    try {
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        console.log("Firebase initialized successfully");
+
+        // Sidebar toggle
+        const hamburger = document.querySelector('.hamburger');
+        const sidebar = document.querySelector('.sidebar');
+        const closeSidebar = document.querySelector('.close-sidebar');
+
+        console.log("Setting up sidebar toggle");
+        hamburger?.addEventListener('click', () => {
+            console.log("Hamburger clicked");
+            sidebar.classList.toggle('active');
+        });
+
+        closeSidebar?.addEventListener('click', () => {
+            console.log("Close sidebar clicked");
+            sidebar.classList.remove('active');
+        });
+
+        // Logout
+        console.log("Setting up logout button");
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                console.log('Logout button clicked');
+                signOut(auth).then(() => {
+                    console.log("Logout successful, redirecting to t_login.html");
+                    window.location.href = 't_login.html';
+                }).catch((error) => {
+                    console.error('Logout error:', error);
+                    const statusElement = document.getElementById('status');
+                    statusElement.textContent = `Logout failed: ${error.message}. Retrying in 2s...`;
+                    statusElement.style.color = 'var(--notification-error-bg)';
+                    if (error.code === 'auth/network-request-failed') {
+                        setTimeout(() => {
+                            console.log("Retrying logout");
+                            signOut(auth).then(() => window.location.href = 't_login.html');
+                        }, 2000);
+                    }
+                });
+            });
+        } else {
+            console.error('Logout button not found');
+        }
+
+        // Authentication check
+        console.log("Checking auth state");
+        onAuthStateChanged(auth, (user) => {
+            console.log("Auth state changed:", user ? "User logged in" : "No user");
+            if (!user) {
+                console.log("Redirecting to t_login.html");
+                window.location.href = 't_login.html';
+                return;
+            }
+            loadStudents();
+        });
+
+        // Open add student modal
+        const openAddModalBtn = document.getElementById('openAddModal');
+        if (openAddModalBtn) {
+            openAddModalBtn.addEventListener('click', () => {
+                console.log("Add New Student button clicked");
+                document.getElementById('addModal').style.display = 'flex';
+                document.getElementById('addStudentForm').reset();
+                document.getElementById('addStatus').textContent = '';
+            });
+        } else {
+            console.error("Add New Student button not found");
+        }
+
+        // Cancel add modal
+        document.getElementById('cancelAdd').addEventListener('click', () => {
+            console.log("Cancel add modal clicked");
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('addStatus').textContent = '';
+        });
+
+        // Add student
+        const addStudentForm = document.getElementById('addStudentForm');
+        if (addStudentForm) {
+            addStudentForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                console.log("Add student form submitted");
+                const addStudentBtn = document.getElementById('addStudentBtn');
+                addStudentBtn.disabled = true;
+                addStudentBtn.textContent = 'Adding...';
+
+                const rollNo = document.getElementById('addRollNo').value.trim();
+                const name = document.getElementById('addName').value.trim();
+                const fatherName = document.getElementById('addFatherName').value.trim();
+                const email = document.getElementById('addEmail').value.trim();
+                const mobile = document.getElementById('addMobile').value.trim();
+                const branch = document.getElementById('addBranch').value;
+                const semester = document.getElementById('addSemester').value;
+                const status = document.getElementById('addStatus');
+
+                // Validate inputs
+                if (!/^[A-Za-z0-9]+$/.test(rollNo)) {
+                    status.textContent = 'Roll number must be alphanumeric.';
+                    status.style.color = 'var(--notification-error-bg)';
+                    addStudentBtn.disabled = false;
+                    addStudentBtn.textContent = 'Add Student';
+                    return;
+                }
+                if (!/^[A-Za-z\s]+$/.test(name)) {
+                    status.textContent = 'Name must contain only letters and spaces.';
+                    status.style.color = 'var(--notification-error-bg)';
+                    addStudentBtn.disabled = false;
+                    addStudentBtn.textContent = 'Add Student';
+                    return;
+                }
+                if (!/^[A-Za-z\s]+$/.test(fatherName)) {
+                    status.textContent = "Father's name must contain only letters and spaces.";
+                    status.style.color = 'var(--notification-error-bg)';
+                    addStudentBtn.disabled = false;
+                    addStudentBtn.textContent = 'Add Student';
+                    return;
+                }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    status.textContent = 'Please enter a valid email.';
+                    status.style.color = 'var(--notification-error-bg)';
+                    addStudentBtn.disabled = false;
+                    addStudentBtn.textContent = 'Add Student';
+                    return;
+                }
+                if (!/^\d{10}$/.test(mobile)) {
+                    status.textContent = 'Mobile number must be a 10-digit number.';
+                    status.style.color = 'var(--notification-error-bg)';
+                    addStudentBtn.disabled = false;
+                    addStudentBtn.textContent = 'Add Student';
+                    return;
+                }
+                if (branch !== 'COE') {
+                    status.textContent = 'Branch must be COE.';
+                    status.style.color = 'var(--notification-error-bg)';
+                    addStudentBtn.disabled = false;
+                    addStudentBtn.textContent = 'Add Student';
+                    return;
+                }
+                if (!semester) {
+                    status.textContent = 'Please select a semester.';
+                    status.style.color = 'var(--notification-error-bg)';
+                    addStudentBtn.disabled = false;
+                    addStudentBtn.textContent = 'Add Student';
+                    return;
+                }
+
+                try {
+                    const studentRef = ref(database, `students/${rollNo}`);
+                    console.log("Checking if roll number exists:", rollNo);
+                    const snapshot = await get(studentRef);
+                    if (snapshot.exists()) {
+                        status.textContent = 'Roll number already exists.';
+                        status.style.color = 'var(--notification-error-bg)';
+                        addStudentBtn.disabled = false;
+                        addStudentBtn.textContent = 'Add Student';
+                        return;
+                    }
+
+                    console.log("Writing student data:", { rollNo, name, fatherName, email, mobile, branch, semester });
+                    await set(studentRef, {
+                        name,
+                        fatherName,
+                        email,
+                        mobile,
+                        branch,
+                        semester,
+                        createdAt: new Date().toISOString()
+                    });
+
+                    status.textContent = 'Student added successfully!';
+                    status.style.color = 'var(--notification-success-bg)';
+                    document.getElementById('addModal').style.display = 'none';
+                    document.getElementById('addStudentForm').reset();
+                    addStudentBtn.disabled = false;
+                    addStudentBtn.textContent = 'Add Student';
+                    loadStudents();
+                } catch (error) {
+                    console.error('Error adding student:', error);
+                    status.textContent = `Error adding student: ${error.message}`;
+                    status.style.color = 'var(--notification-error-bg)';
+                    addStudentBtn.disabled = false;
+                    addStudentBtn.textContent = 'Add Student';
+                }
+            });
+        } else {
+            console.error("Add student form not found");
+        }
+
+        async function loadStudents() {
+            const status = document.getElementById('status');
+            const tableBody = document.querySelector('#studentTable tbody');
+            if (!tableBody) {
+                console.error("Student table body not found");
+                status.textContent = 'Error: Student table not found.';
+                status.style.color = 'var(--notification-error-bg)';
+                return;
+            }
+
+            status.textContent = 'Loading students...';
+            status.style.color = 'var(--text-color)';
+            console.log("Fetching students from Firebase");
+            try {
+                const studentsRef = ref(database, 'students');
+                const snapshot = await get(studentsRef);
+                const students = snapshot.val() || {};
+                console.log("Students fetched:", students);
+
+                tableBody.innerHTML = '';
+                Object.keys(students).forEach(rollNo => {
+                    const student = students[rollNo];
+                    console.log("Rendering student:", rollNo);
+                    const row = document.createElement('tr');
+                    row.dataset.rollno = rollNo;
+                    row.innerHTML = `
+                        <td>${rollNo}</td>
+                        <td>${student.name}</td>
+                        <td>${student.fatherName || 'N/A'}</td>
+                        <td>${student.email}</td>
+                        <td>${student.mobile || 'N/A'}</td>
+                        <td>${student.branch || 'N/A'}</td>
+                        <td>${student.semester}</td>
+                        <td>
+                            <button class="action-btn edit-btn" data-rollno="${rollNo}">Edit</button>
+                            <button class="action-btn delete-btn" data-rollno="${rollNo}">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                if (!Object.keys(students).length) {
+                    console.log("No students found");
+                    tableBody.innerHTML = '<tr><td colspan="8">No students found.</td></tr>';
+                }
+
+                status.textContent = '';
+                console.log("Attaching click events to buttons");
+                document.querySelectorAll('#studentTable .edit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const rollNo = e.target.dataset.rollno;
+                        console.log("Edit button clicked for rollNo:", rollNo);
+                        openEditModal(rollNo);
+                    });
+                });
+
+                document.querySelectorAll('#studentTable .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const rollNo = e.target.dataset.rollno;
+                        console.log("Delete button clicked for rollNo:", rollNo);
+                        deleteStudent(rollNo);
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading students:', error);
+                status.textContent = `Error loading students: ${error.message}`;
+                status.style.color = 'var(--notification-error-bg)';
+            }
+        }
+
+        // Edit student
+        async function openEditModal(rollNo) {
+            const modal = document.getElementById('editModal');
+            const status = document.getElementById('editStatus');
+            console.log("Opening edit modal for rollNo:", rollNo);
+            try {
+                const studentRef = ref(database, `students/${rollNo}`);
+                console.log("Fetching student data:", rollNo);
+                const snapshot = await get(studentRef);
+                const student = snapshot.val();
+                console.log("Student data fetched:", student);
+
+                document.getElementById('editRollNo').value = rollNo;
+                document.getElementById('editName').value = student.name;
+                document.getElementById('editFatherName').value = student.fatherName || '';
+                document.getElementById('editEmail').value = student.email;
+                document.getElementById('editMobile').value = student.mobile || '';
+                document.getElementById('editBranch').value = student.branch || 'COE';
+                document.getElementById('editSemester').value = student.semester;
+
+                status.textContent = '';
+                modal.style.display = 'flex';
+            } catch (error) {
+                console.error('Error loading student data:', error);
+                status.textContent = `Error loading student data: ${error.message}`;
+                status.style.color = 'var(--notification-error-bg)';
+            }
+        }
+
+        document.getElementById('editStudentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log("Edit student form submitted");
+            const rollNo = document.getElementById('editRollNo').value;
+            const name = document.getElementById('editName').value.trim();
+            const fatherName = document.getElementById('editFatherName').value.trim();
+            const email = document.getElementById('editEmail').value.trim();
+            const mobile = document.getElementById('editMobile').value.trim();
+            const branch = document.getElementById('editBranch').value;
+            const semester = document.getElementById('editSemester').value;
+            const status = document.getElementById('editStatus');
+
+            // Validate inputs
+            if (!/^[A-Za-z\s]+$/.test(name)) {
+                status.textContent = 'Name must contain only letters and spaces.';
+                status.style.color = 'var(--notification-error-bg)';
+                return;
+            }
+            if (!/^[A-Za-z\s]+$/.test(fatherName)) {
+                status.textContent = "Father's name must contain only letters and spaces.";
+                status.style.color = 'var(--notification-error-bg)';
+                return;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                status.textContent = 'Please enter a valid email.';
+                status.style.color = 'var(--notification-error-bg)';
+                return;
+            }
+            if (!/^\d{10}$/.test(mobile)) {
+                status.textContent = 'Mobile number must be a 10-digit number.';
+                status.style.color = 'var(--notification-error-bg)';
+                return;
+            }
+            if (!branch) {
+                status.textContent = 'Please select a branch.';
+                status.style.color = 'var(--notification-error-bg)';
+                return;
+            }
+            if (!semester) {
+                status.textContent = 'Please select a semester.';
+                status.style.color = 'var(--notification-error-bg)';
+                return;
+            }
+
+            try {
+                const studentRef = ref(database, `students/${rollNo}`);
+                console.log("Fetching existing student data:", rollNo);
+                const snapshot = await get(studentRef);
+                const existingStudent = snapshot.val();
+
+                console.log("Updating student data:", { rollNo, name, fatherName, email, mobile, branch, semester });
+                await set(studentRef, {
+                    name,
+                    fatherName,
+                    email,
+                    mobile,
+                    branch,
+                    semester,
+                    createdAt: existingStudent.createdAt || new Date().toISOString()
+                });
+
+                status.textContent = 'Student updated successfully!';
+                status.style.color = 'var(--notification-success-bg)';
+                document.getElementById('editModal').style.display = 'none';
+                loadStudents();
+            } catch (error) {
+                console.error('Error updating student:', error);
+                status.textContent = `Error updating student: ${error.message}`;
+                status.style.color = 'var(--notification-error-bg)';
+            }
+        });
+
+        // Delete student from edit modal
+        document.getElementById('deleteStudent').addEventListener('click', () => {
+            const rollNo = document.getElementById('editRollNo').value;
+            console.log("Delete student clicked in edit modal for rollNo:", rollNo);
+            deleteStudent(rollNo);
+            document.getElementById('editModal').style.display = 'none';
+        });
+
+        document.getElementById('cancelEdit').addEventListener('click', () => {
+            console.log("Cancel edit modal clicked");
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('editStatus').textContent = '';
+        });
+
+        // Delete student
+        async function deleteStudent(rollNo) {
+            console.log("Deleting student:", rollNo);
+            if (!confirm(`Are you sure you want to delete student with roll number ${rollNo}?`)) {
+                console.log("Deletion cancelled");
+                return;
+            }
+            const status = document.getElementById('status');
+            try {
+                console.log("Removing student from Firebase:", rollNo);
+                await remove(ref(database, `students/${rollNo}`));
+                status.textContent = 'Student deleted successfully!';
+                status.style.color = 'var(--notification-success-bg)';
+                loadStudents();
+            } catch (error) {
+                console.error('Error deleting student:', error);
+                status.textContent = `Error deleting student: ${error.message}`;
+                status.style.color = 'var(--notification-error-bg)';
+            }
+        }
+
+        // Search and filter
+        document.getElementById('searchInput').addEventListener('input', filterStudents);
+        document.getElementById('semesterFilter').addEventListener('change', filterStudents);
+
+        async function filterStudents() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const semester = document.getElementById('semesterFilter').value;
+            const tableBody = document.querySelector('#studentTable tbody');
+            if (!tableBody) {
+                console.error("Student table body not found in filter");
+                document.getElementById('status').textContent = 'Error: Student table not found.';
+                document.getElementById('status').style.color = 'var(--notification-error-bg)';
+                return;
+            }
+
+            console.log("Filtering students with search:", search, "semester:", semester);
+            try {
+                const studentsRef = ref(database, 'students');
+                const snapshot = await get(studentsRef);
+                const students = snapshot.val() || {};
+                console.log("Students for filtering:", students);
+
+                tableBody.innerHTML = '';
+                let hasStudents = false;
+
+                Object.keys(students).forEach(rollNo => {
+                    const student = students[rollNo];
+                    const matchesSearch = rollNo.toLowerCase().includes(search) ||
+                        student.name.toLowerCase().includes(search) ||
+                        (student.fatherName && student.fatherName.toLowerCase().includes(search));
+                    const matchesSemester = !semester || student.semester === semester;
+
+                    if (matchesSearch && matchesSemester) {
+                        hasStudents = true;
+                        console.log("Rendering filtered student:", rollNo);
+                        const row = document.createElement('tr');
+                        row.dataset.rollno = rollNo;
+                        row.innerHTML = `
+                            <td>${rollNo}</td>
+                            <td>${student.name}</td>
+                            <td>${student.fatherName || 'N/A'}</td>
+                            <td>${student.email}</td>
+                            <td>${student.mobile || 'N/A'}</td>
+                            <td>${student.branch || 'N/A'}</td>
+                            <td>${student.semester}</td>
+                            <td>
+                                <button class="action-btn edit-btn" data-rollno="${rollNo}">Edit</button>
+                                <button class="action-btn delete-btn" data-rollno="${rollNo}">Delete</button>
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    }
+                });
+
+                if (!hasStudents) {
+                    console.log("No students match filter");
+                    tableBody.innerHTML = '<tr><td colspan="8">No students found.</td></tr>';
+                }
+
+                console.log("Re-attaching click events to filtered buttons");
+                document.querySelectorAll('#studentTable .edit-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const rollNo = e.target.dataset.rollno;
+                        console.log("Edit button clicked for rollNo:", rollNo);
+                        openEditModal(rollNo);
+                    });
+                });
+
+                document.querySelectorAll('#studentTable .delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const rollNo = e.target.dataset.rollno;
+                        console.log("Delete button clicked for rollNo:", rollNo);
+                        deleteStudent(rollNo);
+                    });
+                });
+            } catch (error) {
+                console.error('Error filtering students:', error);
+                document.getElementById('status').textContent = `Error filtering students: ${error.message}`;
+                document.getElementById('status').style.color = 'var(--notification-error-bg)';
+            }
+        }
+    } catch (error) {
+        console.error('Firebase initialization error:', error);
+        document.getElementById('status').textContent = `Failed to initialize Firebase: ${error.message}`;
+        document.getElementById('status').style.color = 'var(--notification-error-bg)';
+    }
+</script>
+</body>
+</html>
